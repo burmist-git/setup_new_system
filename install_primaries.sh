@@ -1,9 +1,10 @@
-sudo apt-get install -y emacs git htop cmake cmake-curses-gui openssh-client openssh-server curl curlftpfs gimp
+sudo apt-get install -y emacs git htop cmake cmake-curses-gui openssh-client openssh-server curl curlftpfs gimp simplescreenrecorder
 
 qt5-default
 mesa-common-dev
 libxaw7
 libxaw7-dev
+
 
 
 #git clone https://burmist@stash.desy.de/scm/~burmist/root_v6.14.00.git /home/burmist/root_v6.14.00
