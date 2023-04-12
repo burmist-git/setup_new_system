@@ -41,10 +41,11 @@ packageList=(
     $geant4_cern_ch'G4SAIDDATA.1.1.tar.gz'
     $geant4_cern_ch'G4ABLA.3.0.tar.gz'
     $geant4_cern_ch'G4ENSDFSTATE.1.0.tar.gz'
-    $local_archive_dir'LEND_GND1.3_ENDF.BVII.1.tar.gz'
+    $ucllnl_org'LEND_GND1.3_ENDF.BVII.1.tar.gz'
 )
 
-#$ucllnl_org'LEND_GND1.3_ENDF.BVII.1.tar.gz'
+#$local_archive_dir'LEND_GND1.3_ENDF.BVII.1.tar.gz'
+#
 nPackage=${#packageList[@]}
 let nPackage=nPackage-1
 
