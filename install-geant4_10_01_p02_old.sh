@@ -7,16 +7,14 @@
 LC_TIME=en_US.UTF-8
 
 ##Locations
-g4rootDirName="geant4.10.01.p02"
-initial_dir=$PWD
-g4homeDir=$PWD/$g4rootDirName
-tmpDownloadDir=$g4homeDir/$g4rootDirName"_download_tmp"
-instal_log=$g4homeDir/$g4rootDirName'_install.log'
+g4homeDir=$PWD
+sourceHomeDir="geant4.10.01.p02"
+tmpDownloadDir=$g4homeDir/$sourceHomeDir"_download_tmp"
+instal_log=$sourceHomeDir'_install.log'
 rm -rf $instal_log
-duildDir=$g4homeDir/geant4.10.01.p02-build
-installDir=$g4homeDir/geant4.10.01.p02-install
+duildDir=$g4homeDir/$sourceHomeDir/geant4.10.01.p02-build
+installDir=$g4homeDir/$sourceHomeDir/geant4.10.01.p02-install
 installDataDir=$installDir/share/Geant4-10.1.2/data/
-geant4make_sh_dir=$installDir/share/Geant4-10.1.2/geant4make/geant4make.sh
 
 ### Number of threads for compilation
 nthreads=`(cat /proc/cpuinfo | awk '/^processor/{print $3}' | wc -l)`
@@ -48,29 +46,6 @@ packageList=(
 nPackage=${#packageList[@]}
 let nPackage=nPackage-1
 
-function mkdir_for_installation {
-    mkdir -p $g4homeDir
-    mkdir -p $tmpDownloadDir
-    mkdir -p $duildDir
-    mkdir -p $installDir
-}
-
-function print_locations {
-    echo "g4rootDirName     $g4rootDirName"
-    echo "initial_dir       $initial_dir"
-    echo "g4homeDir         $g4homeDir"
-    echo "tmpDownloadDir    $tmpDownloadDir"
-    echo "instal_log        $instal_log"
-    echo "duildDir          $duildDir"
-    echo "installDir        $installDir"
-    echo "installDataDir    $installDataDir"
-    echo "geant4make_sh_dir $geant4make_sh_dir"
-    echo "nthreads          $nthreads"
-    for i in `seq 0 $nPackage`; do
-	echo ${packageList[$i]}
-    done
-}
-    
 function testdownload_Packages {
     cd $tmpDownloadDir
     for i in `seq 0 $nPackage`;
@@ -138,9 +113,6 @@ function copyOnlyGeant4from {
 
 function installGeant4 {
     #unpack
-    cd $g4homeDir
-    echo " --> installGeant4"
-    echo "$PWD"
     source_code=`(basename ${packageList[0]})`
     mv $tmpDownloadDir/$source_code .
     tar -zxvf $source_code
@@ -148,22 +120,18 @@ function installGeant4 {
     mkdir -p $duildDir
     mkdir -p $installDir
     cd $duildDir
-    cmake -DCMAKE_INSTALL_PREFIX=$installDir $g4homeDir/$g4rootDirName
+    cmake -DCMAKE_INSTALL_PREFIX=$installDir $g4homeDir/$sourceHomeDir
     echo "nthreads = $nthreads"
     make -j$nthreads
     makeInstallGeant4
-    cd $initial_dir
 }
 
 function makeInstallGeant4 {
     #echo "makeInstallGeant4"
     cd $duildDir
-    echo " --> makeInstallGeant4"
-    echo "$PWD"
     make install
     #unpack data dirs 
-    echo "installDataDir = $installDataDir"
-    mkdir -p $installDataDir
+    echo "$installDataDir"
     cd $installDataDir
     for i in `seq 1 $nPackage`;
     do
@@ -172,39 +140,30 @@ function makeInstallGeant4 {
 	mv $tmpDownloadDir/$dataTarFileName .
 	tar -zxvf $dataTarFileName
     done    
-    cd $initial_dir
+    cd $g4homeDir
 }
 
 function makeInstallGeant4_test {
     #echo "makeInstallGeant4"
-    cd $duildDir
-    echo " --> makeInstallGeant4"
-    echo "$PWD"
-    make install
+    #cd $duildDir
+    #make install
     #unpack data dirs 
-    echo "installDataDir = $installDataDir"
-    #mkdir -p $installDataDir
-    cd $installDataDir
+    echo "cd $installDataDir"
+    #cd $installDataDir
     for i in `seq 1 $nPackage`;
     do
 	dataTarFileName=`(basename ${packageList[$i]})`
-	#mv $tmpDownloadDir/$dataTarFileName .
-	echo "mv $tmpDownloadDir/$dataTarFileName ."
-	echo "tar -zxvf $dataTarFileName"
+	#mv $g4homeDir/$dataTarFileName .
+	#tar -zxvf $dataTarFileName
+	echo "cp /home/burmist/home2/geant4.10.01.p02/geant4.10.01.p02-build/$dataTarFileName ."
+	#echo "mv $g4homeDir/$dataTarFileName ."
+	echo "tar -zxvf $dataTarFileName;"
     done    
-    cd $initial_dir
+    cd $g4homeDir
 }
 
 function printUsefulInfo {
-    echo " ---> installDataDir    : $installDataDir"
-    echo " ---> geant4make_sh_dir : $geant4make_sh_dir"
     echo " ---> Compile and link simulation (exampleXYZ) : "
-    echo "$ cmake -DGeant4_DIR=path_to_Geant4_installation/lib[64]/Geant4-10.0.0/ ../exampleXYZ"
-    echo " ---> Example_B1        : $g4homeDir/$g4rootDirName/examples/basic/B1/"
-    echo " ---> Example           : git@github.com:burmist-git/sipmg4.git"
-    echo "                        : https://github.com/burmist-git/HepRApp.git"
-    echo " ---> For visualisation : git@github.com:burmist-git/HepRApp.git"
-    echo "                        : https://github.com/burmist-git/HepRApp.git"
     echo "$ cmake -DGeant4_DIR=path_to_Geant4_installation/lib[64]/Geant4-10.0.0/ ../exampleXYZ"
 }
 
@@ -218,8 +177,6 @@ function printHelp {
     echo " [0] -c   : Copy from given dirrectory"
     echo " [0] -co  : Copy from given dirrectory only Geant4"
     echo " [0] -mit : Make test install"
-    echo " [0] -mkd : Make dirs. for install"    
-    echo " [0] -p   : print locations"
     echo " [0] -h   : help"
 }
 
@@ -228,10 +185,7 @@ then
     printHelp
 else
     if [ "$1" = "-d" ]; then
-	mkdir_for_installation
-	rm -rf $instal_log
-	date | tee $instal_log
-	print_locations | tee -a $instal_log
+	date | tee -a $instal_log
 	time downloadGeant4 | tee -a $instal_log
 	time installGeant4 | tee -a $instal_log
 	time printUsefulInfo | tee -a $instal_log
@@ -250,10 +204,6 @@ else
 	copyOnlyGeant4from
     elif [ "$1" = "-mit" ]; then
 	makeInstallGeant4_test
-    elif [ "$1" = "-p" ]; then
-	print_locations
-    elif [ "$1" = "-mkd" ]; then
-	mkdir_for_installation
     elif [ "$1" = "-h" ]; then
         printHelp
     else
