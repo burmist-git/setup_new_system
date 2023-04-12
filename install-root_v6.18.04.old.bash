@@ -1,24 +1,27 @@
 #!/bin/bash
 
-# Date        : Wed 12 Apr 2023 04:55:08 PM CEST
-# Autor       : Leonid Burmistrov
-# Description : 
+########################################################################
+#                                                                      #
+# Copyright(C) 2019 - LBS - (Single person developer.)                 #
+# Thu May 16 18:09:27 JST 2019                                         #
+# Autor: Leonid Burmistrov                                             #
+#                                                                      #
+# File description:                                                    #
+#                  script to download and install root_v6.14.00        #
+# Input paramete:                                                      #
+#                                                                      #
+# This software is provided "as is" without any warranty.              #
+#                                                                      #
+########################################################################
 
 LC_TIME=en_US.UTF-8
 
 ##Locations
-initial_dir=$PWD
+roothomeDir=$PWD
 version="6.18.04"
 sourceHomeDir="root-$version"
-roothomeDir=$initial_dir/$sourceHomeDir
 duildDir=$roothomeDir/$sourceHomeDir-build
 installDir=$roothomeDir/$sourceHomeDir-install
-install_log=$roothomeDir/$sourceHomeDir'_install.log'
-rm -rf $install_log
-
-mkdir -p $roothomeDir
-mkdir -p $duildDir
-mkdir -p $installDir
 
 ### Number of threads for compilation
 nthreads=`(cat /proc/cpuinfo | awk '/^processor/{print $3}' | wc -l)`
@@ -95,6 +98,7 @@ function printUsefulInfo {
 
 function cleanAll {
     echo " ---> cleanAll : "
+    rm -rf root-6.14.00  root-6.14.00-build  root-6.14.00-install  root_v6.14.00.source.tar.gz
 }
 
 function printHelp {
@@ -112,13 +116,10 @@ then
     printHelp
 else
     if [ "$1" = "-d" ]; then
-	rm -rf $install_log
-	date  | tee $install_log
-	buildPrerequisites | tee -a $install_log
-	downloadRoot | tee -a $install_log
-	#installRoot | tee -a $install_log
-	printUsefulInfo | tee -a $install_log
-	date | tee -a $install_log
+	buildPrerequisites
+	downloadRoot
+	installRoot
+	printUsefulInfo
     elif [ "$1" = "-bp" ]; then
 	buildPrerequisites
     elif [ "$1" = "-sd" ]; then
