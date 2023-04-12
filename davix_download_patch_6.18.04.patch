@@ -1,8 +1,5 @@
- #cd /root-6.18.04/builtins/davix
- #atch -p3 -u -b < davix_download_patch_6.18.patch
-diff -urB root-6.18.04.orig/builtins/davix/CMakeLists.txt root-6.18.04/builtins/davix/CMakeLists.txt
---- root-6.18.04.orig/builtins/davix/CMakeLists.txt	2019-09-11 15:36:49.000000002 +0200
-+++ root-6.18.04/builtins/davix/CMakeLists.txt	2021-03-30 18:22:38.000000002 +0200
+--- CMakeLists.txt	2023-04-12 18:01:48.712703062 +0200
++++ CMakeLists_new.txt	2023-04-12 18:04:39.733279045 +0200
 @@ -5,8 +5,8 @@
  find_package(OpenSSL REQUIRED)
  

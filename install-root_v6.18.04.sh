@@ -14,11 +14,15 @@ roothomeDir=$initial_dir/$sourceHomeDir
 duildDir=$roothomeDir/$sourceHomeDir-build
 installDir=$roothomeDir/$sourceHomeDir-install
 install_log=$roothomeDir/$sourceHomeDir'_install.log'
+patch_file="davix_download_patch_6.18.04.patch"
+patch_file_full=$roothomeDir/$patch_file
+
 rm -rf $install_log
 
 mkdir -p $roothomeDir
 mkdir -p $duildDir
 mkdir -p $installDir
+cp $patch_file $roothomeDir/.
 
 ### Number of threads for compilation
 nthreads=`(cat /proc/cpuinfo | awk '/^processor/{print $3}' | wc -l)`
@@ -65,12 +69,36 @@ function buildPrerequisites {
 }
 
 function downloadRoot {
-    wget https://root.cern.ch/download/root_v$version.source.tar.gz
+    cd $roothomeDir
+    root_tar_file="root_v$version.source.tar.gz"
+    echo " "
+    echo " --> downloadRoot "
+    echo " --> $roothomeDir "
+    echo " --> $root_tar_file "
+    if [ ! -f "$root_tar_file" ]; then
+	wget https://root.cern.ch/download/$root_tar_file
+    fi
+    cd $initial_dir
+}
+
+function make_patch {
+    echo " "
+    echo "---> make_patch"
+    echo "---> $roothomeDir/root-6.18.04/builtins/davix/"
+    echo "---> patch_file_full : $patch_file_full"
+    echo "---> patch_file      : $patch_file"
+    echo "---> roothomeDir     : $roothomeDir"
+    cd $roothomeDir/root-6.18.04/builtins/davix/
+    cp $patch_file_full .
+    patch -u < $patch_file
+    cd $roothomeDir
 }
 
 function installRoot {
+    cd $roothomeDir
     #unpack
     tar -zxvf root_v$version.source.tar.gz
+    make_patch
     #makebuild and install directories
     mkdir -p $duildDir
     mkdir -p $installDir
@@ -79,16 +107,26 @@ function installRoot {
     echo "nthreads = $nthreads"
     make -j$nthreads
     makeInstallRoot
+    cd $initial_dir
 }
 
 function makeInstallRoot {
     #echo "makeInstallRoot"
     cd $duildDir
     make install
-    cd $duildDir
+    cd $initial_dir
 }
 
 function printUsefulInfo {
+    echo " ---> initial_dir          : $initial_dir"
+    echo " ---> version              : $version"
+    echo " ---> sourceHomeDir        : $sourceHomeDir"
+    echo " ---> roothomeDir          : $roothomeDir"
+    echo " ---> duildDir             : $duildDir"
+    echo " ---> installDir           : $installDir"
+    echo " ---> install_log          : $install_log"
+    echo " ---> patch_file           : $patch_file"
+    echo " ---> patch_file_full      : $patch_file_full"
     echo " ---> thisroot.sh location : "
     ls $installDir/bin/thisroot.sh
 }
@@ -116,7 +154,7 @@ else
 	date  | tee $install_log
 	buildPrerequisites | tee -a $install_log
 	downloadRoot | tee -a $install_log
-	#installRoot | tee -a $install_log
+	installRoot | tee -a $install_log
 	printUsefulInfo | tee -a $install_log
 	date | tee -a $install_log
     elif [ "$1" = "-bp" ]; then
