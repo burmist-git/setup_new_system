@@ -40,8 +40,7 @@ packageList=(
     $geant4_cern_ch'G4RealSurface.2.1.1.tar.gz'
     $geant4_cern_ch'G4SAIDDATA.1.1.tar.gz'
     $geant4_cern_ch'G4ABLA.3.1.tar.gz'
-    $geant4_cern_ch'G4ENSDFSTATE.1.0.tar.gz'
-    $ucllnl_org'LEND_GND1.3_ENDF.BVII.1.tar.gz'
+    $geant4_cern_ch'G4ENSDFSTATE.2.2.tar.gz'
 )
 
 #$local_archive_dir'LEND_GND1.3_ENDF.BVII.1.tar.gz'
